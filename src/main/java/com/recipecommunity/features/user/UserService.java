@@ -23,5 +23,13 @@ public class UserService {
     public User findUserByUsername(String username) {
         return repository.findByUsername(username);
     }
+
+    /**
+     * @param user to be saved, using User Repository interface
+     * @return User object that was saved
+     */
+    public User saveUser(User user){
+        return repository.save(user);
+    }
 }
 
