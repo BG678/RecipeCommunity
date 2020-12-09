@@ -2,6 +2,8 @@ package com.recipecommunity.jwt;
 
 import com.recipecommunity.features.user.User;
 import com.recipecommunity.features.user.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,11 +26,13 @@ public class JwtUserDetailsService implements UserDetailsService {
     private UserService userService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtUserDetailsService.class);
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userService.findUserByUsername(username);
         if (user == null) {
+            LOGGER.error("User not found: " + username);
             throw new UsernameNotFoundException("User not found: " + username);
         }
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
@@ -46,6 +50,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         User newUser = new User();
         newUser.setUsername(request.getUsername());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        LOGGER.debug("Saving a new user");
         return userService.saveUser(newUser);
     }
 }
