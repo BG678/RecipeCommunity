@@ -31,5 +31,16 @@ public class UserService {
     public User saveUser(User user){
         return repository.save(user);
     }
+
+    /**
+     * Uses UserRepository instance to check if user with given username already exists
+     *
+     * @param username name of user to check
+     * @return Boolean value that was returned by repository's method - existsByUserName method
+     */
+    public Boolean existsByUsername(String username){
+        return repository.existsByUsername(username);
+    }
+
 }
 

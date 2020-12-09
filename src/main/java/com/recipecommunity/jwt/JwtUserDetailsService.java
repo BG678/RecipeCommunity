@@ -53,4 +53,14 @@ public class JwtUserDetailsService implements UserDetailsService {
         LOGGER.debug("Saving a new user");
         return userService.saveUser(newUser);
     }
+
+    /**
+     * Uses UserService instance to check if user with given username already exists
+     *
+     * @param username name of user to check
+     * @return Boolean value that was returned by userService's method - existsByUserName method
+     */
+    protected Boolean doesUserAlreadyExist(String username){
+        return userService.existsByUsername(username);
+    }
 }

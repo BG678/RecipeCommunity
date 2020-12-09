@@ -16,4 +16,10 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
      * @return User object that has a given username or else null
      */
     User findByUsername(String name);
+
+    /**
+     * @param username name of user to check
+     * @return true if user with given username already exists, otherwise false
+     */
+    Boolean existsByUsername(String username);
 }
