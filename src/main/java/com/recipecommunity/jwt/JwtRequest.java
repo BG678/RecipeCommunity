@@ -1,5 +1,6 @@
 package com.recipecommunity.jwt;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
@@ -10,9 +11,19 @@ import java.io.Serializable;
  */
 public class JwtRequest implements Serializable {
     private static final long serialVersionUID = 1234561L;
+    @NotBlank
     private String username;
+    @NotBlank
     private String password;
-    
+
+    public JwtRequest() {
+    }
+
+    public JwtRequest(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     public String getUsername() {
         return this.username;
     }
