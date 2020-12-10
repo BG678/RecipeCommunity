@@ -3,6 +3,7 @@ package com.recipecommunity.features.comment;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.recipecommunity.features.recipe.Recipe;
 import com.recipecommunity.features.user.User;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -18,7 +19,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "comment")
-public class Comment implements Serializable {
+public class Comment extends RepresentationModel<Comment> implements Serializable {
     private static final long serialVersionUID = 123452L;
 
     @Id

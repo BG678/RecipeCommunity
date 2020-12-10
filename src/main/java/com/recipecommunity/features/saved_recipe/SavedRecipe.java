@@ -2,6 +2,7 @@ package com.recipecommunity.features.saved_recipe;
 
 import com.recipecommunity.features.recipe.Recipe;
 import com.recipecommunity.features.user.User;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -9,25 +10,35 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "saved_recipe")
-public class SavedRecipe implements Serializable {
-    @EmbeddedId
-    SavedRecipeKey id;
+public class SavedRecipe extends RepresentationModel<SavedRecipe> implements Serializable {
+    private static final long serialVersionUID = 1234544L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
-    @MapsId("userId")
     @JoinColumn(name = "saved_by_user_id")
     User user;
 
     @ManyToOne
-    @MapsId("recipeId")
     @JoinColumn(name = "recipe_id")
     Recipe recipe;
 
-    public SavedRecipeKey getId() {
+
+    public SavedRecipe() {
+    }
+
+    public SavedRecipe(User user, Recipe recipe) {
+        this.user = user;
+        this.recipe = recipe;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(SavedRecipeKey id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

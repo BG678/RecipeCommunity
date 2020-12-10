@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.recipecommunity.features.comment.Comment;
 import com.recipecommunity.features.recipe.Recipe;
 import com.recipecommunity.features.saved_recipe.SavedRecipe;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Set;
@@ -21,7 +21,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "user")
-public class User implements Serializable {
+public class User extends RepresentationModel<User> implements Serializable {
     private static final long serialVersionUID = 123451L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

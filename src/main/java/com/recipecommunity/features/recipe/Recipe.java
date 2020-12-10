@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.recipecommunity.features.saved_recipe.SavedRecipe;
 import com.recipecommunity.features.comment.Comment;
 import com.recipecommunity.features.user.User;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "recipe")
-public class Recipe implements Serializable {
+public class Recipe extends RepresentationModel<Recipe> implements Serializable {
     private static final long serialVersionUID = 123453L;
 
     @Id
