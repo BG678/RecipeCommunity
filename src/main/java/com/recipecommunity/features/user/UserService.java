@@ -1,6 +1,9 @@
 package com.recipecommunity.features.user;
 
+import com.recipecommunity.utils.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -28,7 +31,7 @@ public class UserService {
      * @param user to be saved, using User Repository interface
      * @return User object that was saved
      */
-    public User saveUser(User user){
+    public User saveUser(User user) {
         return repository.save(user);
     }
 
@@ -38,9 +41,26 @@ public class UserService {
      * @param username name of user to check
      * @return Boolean value that was returned by repository's method - existsByUserName method
      */
-    public Boolean existsByUsername(String username){
+    public Boolean existsByUsername(String username) {
         return repository.existsByUsername(username);
     }
+
+    /**
+     * @param pageable PageRequest object that should contain data about wanted page number and size
+     * @return wanted Page instance that have list of Users
+     */
+    public Page<User> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
+    }
+
+    /**
+     * @param id id of wanted User object
+     * @return proper User object, if user with given id does't exist this method throws new ResourceNotFoundException
+     */
+    public User findUserById(Long id) {
+        return repository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    }
+
 
 }
 
