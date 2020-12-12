@@ -1,6 +1,8 @@
 package com.recipecommunity.features.user;
 
 import com.recipecommunity.utils.ResourceNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
     @Autowired
     private UserRepository repository;
+    private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     /**
      * Gets a user with a given username, using UserRepository interface.
@@ -32,6 +35,7 @@ public class UserService {
      * @return User object that was saved
      */
     public User saveUser(User user) {
+        LOGGER.debug("Saving a new user");
         return repository.save(user);
     }
 
@@ -47,7 +51,7 @@ public class UserService {
 
     /**
      * @param pageable PageRequest object that should contain data about wanted page number and size
-     * @return wanted Page instance that have list of Users
+     * @return wanted Page of Users
      */
     public Page<User> findAll(Pageable pageable) {
         return repository.findAll(pageable);
