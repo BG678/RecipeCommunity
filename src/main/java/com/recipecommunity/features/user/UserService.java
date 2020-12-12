@@ -16,10 +16,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserService {
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository repository;
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
-
+    @Autowired
+    public UserService(UserRepository repository){
+        this.repository = repository;
+    }
     /**
      * Gets a user with a given username, using UserRepository interface.
      *
