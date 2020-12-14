@@ -19,19 +19,18 @@ public class SavedRecipe extends RepresentationModel<SavedRecipe> implements Ser
 
     @ManyToOne
     @JoinColumn(name = "saved_by_user_id")
-    User user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "recipe_id")
-    Recipe recipe;
+    private Recipe recipe;
 
 
     public SavedRecipe() {
     }
 
-    public SavedRecipe(User user, Recipe recipe) {
-        this.user = user;
-        this.recipe = recipe;
+    public SavedRecipe(Long id) {
+        this.id = id;
     }
 
     public Long getId() {
