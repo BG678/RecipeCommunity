@@ -62,8 +62,7 @@ public class SavedRecipe extends RepresentationModel<SavedRecipe> implements Ser
         if (this == o) return true;
         if (!(o instanceof SavedRecipe)) return false;
         SavedRecipe that = (SavedRecipe) o;
-        return getId().equals(that.getId()) &&
-                getUser().equals(that.getUser()) &&
+        return getUser().equals(that.getUser()) &&
                 getRecipe().equals(that.getRecipe());
     }
 
