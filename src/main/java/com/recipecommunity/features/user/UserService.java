@@ -1,6 +1,7 @@
 package com.recipecommunity.features.user;
 
 import com.recipecommunity.utils.ResourceNotFoundException;
+import com.recipecommunity.utils.UserByUsername;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
  * @version %I%, %G%
  */
 @Service
-public class UserService {
+public class UserService implements UserByUsername {
     private final UserRepository repository;
     private final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     @Autowired
@@ -28,6 +29,7 @@ public class UserService {
      * @param username - name of wanted user
      * @return a proper User object
      */
+    @Override
     public User findUserByUsername(String username) {
         return repository.findByUsername(username);
     }
