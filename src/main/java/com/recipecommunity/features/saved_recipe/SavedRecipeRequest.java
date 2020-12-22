@@ -1,6 +1,7 @@
 package com.recipecommunity.features.saved_recipe;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
 /**
@@ -11,7 +12,7 @@ import java.io.Serializable;
  */
 public class SavedRecipeRequest implements Serializable {
     private static final long serialVersionUID = 12345434344L;
-    @NotBlank
+    @NotNull
     @Positive
     private Long recipeToBeSaveId;
 
