@@ -26,7 +26,7 @@ public class SavedRecipeService {
     }
 
     /**
-     * @param savedRecipe SavedRecipe object to be deleted
+     * @param savedRecipe SavedRecipe object to be saved
      * @return SavedRecipe object that just has been saved
      */
     protected SavedRecipe save(SavedRecipe savedRecipe) {
