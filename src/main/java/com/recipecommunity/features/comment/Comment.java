@@ -6,6 +6,7 @@ import com.recipecommunity.features.user.User;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -25,7 +26,7 @@ public class Comment extends RepresentationModel<Comment> implements Serializabl
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+    @NotBlank
     private String text;
     @NotNull
     private LocalDate date;
@@ -38,6 +39,13 @@ public class Comment extends RepresentationModel<Comment> implements Serializabl
     @ManyToOne
     @JoinColumn(name = "comment_author_id", nullable = false)
     private User user;
+
+    public Comment() {
+    }
+
+    public Comment(Long id) {
+        this.id = id;
+    }
 
     public Long getId() {
         return id;
@@ -84,8 +92,7 @@ public class Comment extends RepresentationModel<Comment> implements Serializabl
         if (this == o) return true;
         if (!(o instanceof Comment)) return false;
         Comment comment = (Comment) o;
-        return getId().equals(comment.getId()) &&
-                getText().equals(comment.getText()) &&
+        return getText().equals(comment.getText()) &&
                 getDate().equals(comment.getDate()) &&
                 getRecipe().equals(comment.getRecipe()) &&
                 getUser().equals(comment.getUser());
