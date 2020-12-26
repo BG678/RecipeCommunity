@@ -1,4 +1,4 @@
-package com.recipecommunity.jwt;
+package com.recipecommunity.features.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import java.io.IOException;
 /**
  * JwtRequestFilter class that extends OncePerRequestFilter abstract class. Overrides doFilterInternal method.
  *
- * @author Barbara Grabowska
  * @version %I%, %G%
  */
 @Component

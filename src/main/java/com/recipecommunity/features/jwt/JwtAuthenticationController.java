@@ -1,4 +1,5 @@
-package com.recipecommunity.jwt;
+package com.recipecommunity.features.jwt;
+
 import com.recipecommunity.features.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,8 +8,6 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,17 +16,17 @@ import javax.validation.Valid;
 /**
  * Controller class that enables client to sign in and sign up.
  *
- * @author Barbara Grabowska
  * @version %I%, %G%
  */
 @RestController
 @CrossOrigin
 @RequestMapping("/api/auth")
 public class JwtAuthenticationController {
-    private AuthenticationManager authenticationManager;
-    private JwtTokenUtil jwtTokenUtil;
-    private JwtUserDetailsService userDetailsService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtUserDetailsService userDetailsService;
     private final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationController.class);
+
     @Autowired
     public JwtAuthenticationController(AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, JwtUserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
@@ -41,10 +40,9 @@ public class JwtAuthenticationController {
      *
      * @param jwtRequest JwtRequest object that should contain valid data
      * @return ResponseEntity object with ok status and JwtResponse object body that contains generated token
-     * @throws Exception thrown by authenticate method
      */
     @PostMapping("/sign-in")
-    public ResponseEntity<JwtResponse> createAuthenticationToken(@Valid @RequestBody JwtRequest jwtRequest) throws Exception {
+    public ResponseEntity<JwtResponse> createAuthenticationToken(@Valid @RequestBody JwtRequest jwtRequest) {
         String username = jwtRequest.getUsername();
         authenticate(username, jwtRequest.getPassword());
         String token = jwtTokenUtil.generateToken(
@@ -63,9 +61,9 @@ public class JwtAuthenticationController {
      */
     @PostMapping("/sign-up")
     public ResponseEntity<User> saveUser(@Valid @RequestBody JwtRequest jwtRequest) {
-        if (userDetailsService.doesUserAlreadyExist(jwtRequest.getUsername())){
+        if (userDetailsService.doesUserAlreadyExist(jwtRequest.getUsername())) {
             LOGGER.warn("User already Exists");
-            throw new UsernameIsAlreadyTakenException(HttpStatus.BAD_REQUEST, "Username is already taken");
+            throw new UsernameIsAlreadyTakenException();
         }
         LOGGER.debug("Signed up " + jwtRequest.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(userDetailsService.saveNewUser(jwtRequest));
@@ -76,15 +74,8 @@ public class JwtAuthenticationController {
      *
      * @param username to be authenticated
      * @param password that should match given username
-     * @throws Exception when authentication fails
      */
-    private void authenticate(String username, String password) throws Exception {
-        try {
+    private void authenticate(String username, String password) {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
-        }
     }
 }

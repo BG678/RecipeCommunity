@@ -1,4 +1,4 @@
-package com.recipecommunity.jwt;
+package com.recipecommunity.features.jwt;
 
 import com.recipecommunity.features.user.User;
 import com.recipecommunity.features.user.UserService;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
  * Service class which implements a UserDetailsService interface, uses UserService and PasswordEncoder instances.
  * This class overrides loadUserByUsername method and provides method that allows saving a new user.
  *
- * @author Barbara Grabowska
  * @version %I%, %G%
  */
 @Service

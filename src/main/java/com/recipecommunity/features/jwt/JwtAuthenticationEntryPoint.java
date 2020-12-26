@@ -1,4 +1,4 @@
-package com.recipecommunity.jwt;
+package com.recipecommunity.features.jwt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

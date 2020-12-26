@@ -1,4 +1,4 @@
-package com.recipecommunity.jwt;
+package com.recipecommunity.features.jwt;
 
 import java.io.Serializable;
 

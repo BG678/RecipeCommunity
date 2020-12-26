@@ -1,4 +1,4 @@
-package com.recipecommunity.jwt;
+package com.recipecommunity.features.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,7 +17,6 @@ import java.util.HashMap;
  * Util class that provides methods required to generate a Jwt token, check token's validity,
  * and retrieve token's claims.
  *
- * @author Barbara Grabowska
  * @version %I%, %G%
  */
 @Component

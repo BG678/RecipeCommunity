@@ -1,4 +1,4 @@
-package com.recipecommunity.jwt;
+package com.recipecommunity.features.jwt;
 
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
@@ -7,7 +7,6 @@ import java.util.Objects;
 /**
  * POJO class that contains payload required to authenticate and register user
  *
- * @author Barbara Grabowska
  * @version %I%, %G%
  */
 public class JwtRequest implements Serializable {
