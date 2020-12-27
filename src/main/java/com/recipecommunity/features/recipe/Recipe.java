@@ -101,12 +101,13 @@ public class Recipe extends RepresentationModel<Recipe> implements Serializable 
         if (this == o) return true;
         if (!(o instanceof Recipe)) return false;
         Recipe recipe = (Recipe) o;
-        return getId().equals(recipe.getId()) &&
-                getTitle().equals(recipe.getTitle()) &&
-                getText().equals(recipe.getText()) &&
-                getAuthor().equals(recipe.getAuthor()) &&
-                getComments().equals(recipe.getComments()) &&
-                getSavedRecipes().equals(recipe.getSavedRecipes());
+        if (getId() != null && recipe.getId() != null) {
+            return getId().equals(recipe.getId());
+        } else {
+            return getTitle().equals(recipe.getTitle()) &&
+                    getText().equals(recipe.getText()) &&
+                    getAuthor().equals(recipe.getAuthor());
+        }
     }
 
     @Override

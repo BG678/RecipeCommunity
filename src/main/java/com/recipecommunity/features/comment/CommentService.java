@@ -46,7 +46,7 @@ public class CommentService {
             return comment;
         }
         LOGGER.warn("Resource not found");
-        throw new  ResourceNotFoundException();
+        throw new ResourceNotFoundException();
     }
 
     /**
