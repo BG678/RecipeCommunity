@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest//(classes = RecipeCommunityApplication.class)
 @AutoConfigureMockMvc
 class CommentControllerTest {
     private MockMvc mockMvc;
@@ -97,7 +97,7 @@ class CommentControllerTest {
         given(userService.findUserByUsername("test")).willReturn(user);
         given(service.saveComment(toBeSaved)).willReturn(comment);
         mockMvc.perform(post("/api/recipes/1/comments")
-                .content(asJsonString(request))
+                .content(new ObjectMapper().writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(comment.getId().intValue())));
@@ -112,21 +112,13 @@ class CommentControllerTest {
         mockMvc.perform(get("/api/recipes/1/comments")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.comments[0].id", is(comment.getId().intValue())))
+                .andExpect(jsonPath("$._embedded.commentList[0].id", is(comment.getId().intValue())))
                 .andExpect(jsonPath("$._links", aMapWithSize(2)));
     }
 
     @Test
     protected void test_addLinks() {
         CommentController commentController = new CommentController(service, userService);
-        assertTrue(commentController.addLinks(comment).getLinks().hasSize(2));
-    }
-
-    public static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        assertTrue(commentController.addLinks(comment, null).getLinks().hasSize(2));
     }
 }

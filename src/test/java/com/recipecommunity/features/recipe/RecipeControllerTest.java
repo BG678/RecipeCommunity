@@ -69,11 +69,12 @@ class RecipeControllerTest {
     protected void test_getRecipes() throws Exception {
         List<Recipe> recipes = new ArrayList<>();
         recipes.add(recipe);
-        given(service.getAllRecipes()).willReturn(recipes);
+        Page<Recipe> page = new PageImpl<>(recipes);
+        given(service.getAllRecipes(PageRequest.of(0, 10))).willReturn(page);
         mockMvc.perform(get("/api/recipes")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.recipes[0].id", is(recipe.getId().intValue())))
+                .andExpect(jsonPath("$._embedded.recipeList[0].id", is(recipe.getId().intValue())))
                 .andExpect(jsonPath("$._links", aMapWithSize(1)));
     }
 
@@ -99,7 +100,7 @@ class RecipeControllerTest {
         mockMvc.perform(get("/api/recipes/my")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.recipes[0].id", is(recipe.getId().intValue())))
+                .andExpect(jsonPath("$._embedded.recipeList[0].id", is(recipe.getId().intValue())))
                 .andExpect(jsonPath("$._links", aMapWithSize(1)));
     }
 
@@ -118,7 +119,7 @@ class RecipeControllerTest {
         mockMvc.perform(post("/api/recipes/my")
                 .content(new ObjectMapper().writeValueAsString(request))
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(recipe.getId().intValue())));
     }
 
@@ -137,7 +138,9 @@ class RecipeControllerTest {
     @Test
     protected void test_getMyRecipeById_when_user_hasnt_got_access_to_wanted_resource() throws Exception {
         given(service.getOneById(5L)).willReturn(recipe);
-        assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/api/recipes/my/{id}", "5")));
+        mockMvc.perform(get("/api/recipes/my/{id}", "5")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", is("Access is denied")));
     }
 
     @Test
@@ -180,7 +183,7 @@ class RecipeControllerTest {
         mockMvc.perform(get("/api/recipes/created-by-{username}", "test")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.recipes[0].id", is(recipe.getId().intValue())))
+                .andExpect(jsonPath("$._embedded.recipeList[0].id", is(recipe.getId().intValue())))
                 .andExpect(jsonPath("$._links", aMapWithSize(1)));
     }
 

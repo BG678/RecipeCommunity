@@ -1,6 +1,7 @@
 package com.recipecommunity.features.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.recipecommunity.RecipeCommunityApplication;
 import com.recipecommunity.features.user.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +25,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(classes = RecipeCommunityApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
 class JwtAuthenticationControllerTest {
     private MockMvc mockMvc;
@@ -40,10 +41,12 @@ class JwtAuthenticationControllerTest {
         JwtAuthenticationController authenticationController = new JwtAuthenticationController(authenticationManager, util, userDetailsService);
         mockMvc = MockMvcBuilders.standaloneSetup(authenticationController).build();
     }
+
     @AfterEach
-    protected void tearDown(){
+    protected void tearDown() {
         mockMvc = null;
     }
+
     @Test
     void contextLoads() {
     }
@@ -59,7 +62,7 @@ class JwtAuthenticationControllerTest {
         given(util.generateToken(userDetails)).willReturn("myCustomToken");
         mockMvc.perform(post("/api/auth/sign-in")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(jwtRequest)))
+                .content(new ObjectMapper().writeValueAsString(jwtRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token", is("myCustomToken")));
     }
@@ -72,7 +75,7 @@ class JwtAuthenticationControllerTest {
         given(userDetailsService.doesUserAlreadyExist("test")).willReturn(false);
         given(userDetailsService.saveNewUser(jwtRequest)).willReturn(myUser);
         mockMvc.perform(post("/api/auth/sign-up")
-                .content(asJsonString(jwtRequest))
+                .content(new ObjectMapper().writeValueAsString(jwtRequest))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(myUser.getId().intValue())))
@@ -84,15 +87,7 @@ class JwtAuthenticationControllerTest {
         JwtRequest jwtRequest = new JwtRequest("alreadyExists", "pass");
         given(userDetailsService.doesUserAlreadyExist("alreadyExists")).willReturn(true);
         assertThrows(NestedServletException.class, () -> mockMvc.perform(post("/api/auth/sign-up")
-                .content(asJsonString(jwtRequest))
+                .content(new ObjectMapper().writeValueAsString(jwtRequest))
                 .contentType(MediaType.APPLICATION_JSON)));
-    }
-
-    public static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

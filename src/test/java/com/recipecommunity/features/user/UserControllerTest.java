@@ -15,17 +15,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,20 +81,20 @@ class UserControllerTest {
         mockMvc.perform(get("/api/users")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.users[0].id", is(myUser.getId().intValue())))
-                .andExpect(jsonPath("$._embedded.users[0].username", is(myUser.getUsername())))
-                .andExpect(jsonPath("$._embedded.users[0]._links", aMapWithSize(1)))
+                .andExpect(jsonPath("$._embedded.userList[0].id", is(myUser.getId().intValue())))
+                .andExpect(jsonPath("$._embedded.userList[0].username", is(myUser.getUsername())))
+                .andExpect(jsonPath("$._embedded.userList[0]._links", aMapWithSize(1)))
                 .andExpect(jsonPath("$._links", aMapWithSize(1)));
     }
+
     @Test
-    protected void test_getUsers_when_wanted_page_does_not_exist(){
+    protected void test_getUsers_when_wanted_page_does_not_exist() throws Exception {
         List<User> users = new ArrayList<>();
         users.add(myUser);
         Page<User> pag = new PageImpl<>(users);
         given(service.findAll(PageRequest.of(3, 10))).willReturn(pag);
-        assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/api/users?page=3")
-                .contentType(MediaType.APPLICATION_JSON)));
+        mockMvc.perform(get("/api/users?page=3")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", is("This page doesn't exist")));
     }
-
-
 }

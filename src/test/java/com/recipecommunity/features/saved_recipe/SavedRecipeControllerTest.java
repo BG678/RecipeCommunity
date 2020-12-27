@@ -19,14 +19,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.util.NestedServletException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -91,7 +89,9 @@ class SavedRecipeControllerTest {
     @Test
     protected void test_getSavedRecipeById_with_wrong_user() throws Exception {
         given(service.getOneById(5L)).willReturn(savedRecipe);
-        assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/api/users/me/saved-recipes/{id}", "5")));
+        mockMvc.perform(get("/api/users/me/saved-recipes/{id}", "5")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", is("Access is denied")));
     }
 
     @Test
@@ -105,7 +105,7 @@ class SavedRecipeControllerTest {
         given(userService.findUserByUsername("test")).willReturn(user);
         given(service.save(toBeSaved)).willReturn(savedRecipe);
         mockMvc.perform(post("/api/users/me/saved-recipes")
-                .content(asJsonString(savedRecipeRequest))
+                .content(new ObjectMapper().writeValueAsString(savedRecipeRequest))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(savedRecipe.getId().intValue())));
@@ -121,22 +121,13 @@ class SavedRecipeControllerTest {
         mockMvc.perform(get("/api/users/me/saved-recipes")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$._embedded.savedRecipes[0].id", is(savedRecipe.getId().intValue())))
+                .andExpect(jsonPath("$._embedded.savedRecipeList[0].id", is(savedRecipe.getId().intValue())))
                 .andExpect(jsonPath("$._links", aMapWithSize(2)));
     }
 
     @Test
     protected void test_addLinks() {
         SavedRecipeController savedRecipeController = new SavedRecipeController(service, userService);
-        assertTrue(savedRecipeController.addLinks(savedRecipe).getLinks().hasSize(3));
+        assertTrue(savedRecipeController.addLinks(savedRecipe, null).getLinks().hasSize(3));
     }
-
-    public static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }
