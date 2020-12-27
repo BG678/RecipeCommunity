@@ -1,6 +1,6 @@
 package com.recipecommunity.features.saved_recipe;
 
-import com.recipecommunity.utils.SavedRecipeByUsernameAndRecipeId;
+import com.recipecommunity.features.utils.SavedRecipeByUsernameAndRecipeId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SavedRecipeRepository extends PagingAndSortingRepository<SavedRecipe, Long>, SavedRecipeByUsernameAndRecipeId {
     Page<SavedRecipe> findByUserUsername(String username, Pageable pageable);
+
     @Override
     SavedRecipe findByUserUsernameAndRecipeId(String username, Long id);
 }

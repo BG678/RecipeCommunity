@@ -1,7 +1,7 @@
 package com.recipecommunity.features.recipe;
 
-import com.recipecommunity.utils.ResourceNotFoundException;
-import com.recipecommunity.utils.UserByUsername;
+import com.recipecommunity.features.utils.exception.ResourceNotFoundException;
+import com.recipecommunity.features.utils.UserByUsername;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * Service class for recipe feature.
@@ -67,10 +65,19 @@ public class RecipeService {
     }
 
     /**
-     * @return a List of all recipes
+     * @param title    of a recipe that client is looking for
+     * @param pageable PageRequest object that should contain data about wanted page number and size
+     * @return wanted Page of Recipe objects with titles containing title argument value
      */
-    protected List<Recipe> getAllRecipes() {
-        return repository.findAll();
+    protected Page<Recipe> findByTitle(String title, Pageable pageable) {
+        return repository.findAllByTitleContaining(title, pageable);
+    }
+
+    /**
+     * @return a wanted Page of recipes
+     */
+    protected Page<Recipe> getAllRecipes(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
 
