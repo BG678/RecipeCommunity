@@ -2,8 +2,7 @@ package com.recipecommunity.features.user;
 
 import com.recipecommunity.features.recipe.RecipeController;
 import com.recipecommunity.features.saved_recipe.SavedRecipeController;
-import com.recipecommunity.utils.PageDoesNotExist;
-import com.sun.xml.bind.v2.TODO;
+import com.recipecommunity.features.utils.exception.PageDoesNotExist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 /**
  * Controller class for user feature. Enables client to get all users, currently logged in user and user with given id.
  *
@@ -33,17 +33,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
-    //TODO class documentation, add Logger
+
     @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
     private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     /**
      * Returns wanted Page of Users and proper Links inside ResponseEntity
      *
-     * @param pageNumber number of wanted page
+     * @param pageNumber  number of wanted page
      * @param userDetails object that contains current user data
      * @return ResponseEntity with ok status and a CollectionModel instance with Page of Users and Links as a body
      */
@@ -60,19 +61,17 @@ public class UserController {
             if (user.hasLink("self"))
                 continue;
             user.add(linkTo(methodOn(UserController.class)
-                    .getUserById(user.getId())).withSelfRel());
+                    .getUserById(user.getId(), userDetails)).withSelfRel());
         }
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(UserController.class).getCurrentUser(userDetails)).withRel("me"));
         if (pageNumber > 0) {
-            Link link2 = linkTo(methodOn(UserController.class).getUsers(pageNumber - 1, userDetails)).withRel("previous");
-            links.add(link2);
+            links.add(linkTo(methodOn(UserController.class).getUsers(pageNumber - 1, userDetails)).withRel("previous"));
         }
         if (pageNumber + 2 <= pages) {
-            Link link = linkTo(methodOn(UserController.class).getUsers(pageNumber + 1, userDetails)).withRel("next");
-            links.add(link);
+            links.add(linkTo(methodOn(UserController.class).getUsers(pageNumber + 1, userDetails)).withRel("next"));
         }
-        if (pageNumber >= pages) {
+        if (pageNumber >= pages && pageNumber != 0) {
             LOGGER.debug("Wanted page does not exist");
             throw new PageDoesNotExist();
         }
@@ -89,10 +88,10 @@ public class UserController {
      * @return ResponseEntity with ok status and a proper user object as a body
      */
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userService.findUserById(id);
-        user.add(linkTo(methodOn(UserController.class).getUserById(id)).withSelfRel());
-        user.add(linkTo(methodOn(RecipeController.class).getRecipesCreatedByGiveUser(0, user.getUsername()))
+        user.add(linkTo(methodOn(UserController.class).getUserById(id, userDetails)).withSelfRel());
+        user.add(linkTo(methodOn(RecipeController.class).getRecipesCreatedByGivenUser(0, user.getUsername(), userDetails))
                 .withRel("Recipes created by this user"));
         LOGGER.debug("Getting user");
         return ResponseEntity.status(HttpStatus.OK).body(user);
@@ -108,9 +107,9 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         User me = userService.findUserByUsername(userDetails.getUsername());
+        me.add(linkTo(methodOn(UserController.class).getCurrentUser(userDetails)).withSelfRel());
         me.add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipes(0, userDetails)).withRel("My saved recipes"));
         me.add(linkTo(methodOn(RecipeController.class).getCurrentUsersRecipes(0, userDetails)).withRel("My recipes"));
-        me.add(linkTo(methodOn(UserController.class).getCurrentUser(userDetails)).withSelfRel());
         return ResponseEntity.status(HttpStatus.OK).body(me);
     }
 }

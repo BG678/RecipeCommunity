@@ -59,7 +59,7 @@ public class JwtUserDetailsService implements UserDetailsService {
      * @param username name of user to check
      * @return Boolean value that was returned by userService's method - existsByUserName method
      */
-    protected Boolean doesUserAlreadyExist(String username){
+    protected Boolean doesUserAlreadyExist(String username) {
         return userService.existsByUsername(username);
     }
 }

@@ -66,15 +66,15 @@ public class CommentController {
             }
         }
         List<Link> links = new ArrayList<>();
-        links.add(linkTo(methodOn(RecipeController.class).getOne(recipeId, userDetails)).withRel("recipe"));
         links.add(linkTo(methodOn(CommentController.class).getComments(pageNumber, recipeId, userDetails)).withSelfRel());
+        links.add(linkTo(methodOn(RecipeController.class).getOne(recipeId, userDetails)).withRel("recipe"));
         if (pageNumber > 0) {
-            Link link2 = linkTo(methodOn(CommentController.class).getComments(pageNumber - 1, recipeId, userDetails)).withRel("previous");
-            links.add(link2);
+            links.add(linkTo(methodOn(CommentController.class).getComments(pageNumber - 1, recipeId, userDetails))
+                    .withRel("previous"));
         }
         if (pageNumber + 2 <= pages) {
-            Link link = linkTo(methodOn(CommentController.class).getComments(pageNumber + 1, recipeId, userDetails)).withRel("next");
-            links.add(link);
+            links.add(linkTo(methodOn(CommentController.class).getComments(pageNumber + 1, recipeId, userDetails))
+                    .withRel("next"));
         }
         if (pageNumber >= pages && pageNumber != 0) {
             LOGGER.debug("Wanted page does not exist");
@@ -141,9 +141,9 @@ public class CommentController {
      * @return Comment object that was passed to this method, but with added Links
      */
     protected Comment addLinks(Comment comment, UserDetails userDetails) {
-        comment.add(linkTo(methodOn(UserController.class).getUserById(comment.getUser().getId(), userDetails)).withRel("author"));
         comment.add(linkTo(methodOn(CommentController.class).
                 getCommentById(comment.getRecipe().getId(), comment.getId(), userDetails)).withSelfRel());
+        comment.add(linkTo(methodOn(UserController.class).getUserById(comment.getUser().getId(), userDetails)).withRel("author"));
         return comment;
     }
 }

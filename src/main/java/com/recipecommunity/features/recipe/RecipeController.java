@@ -5,14 +5,13 @@ import com.recipecommunity.features.saved_recipe.SavedRecipe;
 import com.recipecommunity.features.saved_recipe.SavedRecipeController;
 import com.recipecommunity.features.saved_recipe.SavedRecipeRequest;
 import com.recipecommunity.features.user.UserController;
-import com.recipecommunity.utils.PageDoesNotExist;
-import com.recipecommunity.utils.SavedRecipeByUsernameAndRecipeId;
-import com.recipecommunity.utils.UserByUsername;
+import com.recipecommunity.features.utils.exception.PageDoesNotExist;
+import com.recipecommunity.features.utils.SavedRecipeByUsernameAndRecipeId;
+import com.recipecommunity.features.utils.UserByUsername;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.CollectionModel;
@@ -28,7 +27,6 @@ import javax.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -69,14 +67,12 @@ public class RecipeController {
     public ResponseEntity<CollectionModel<Recipe>> getRecipes(
             @RequestParam(value = "page", required = false, defaultValue = "0") int pageNumber,
             @AuthenticationPrincipal UserDetails userDetails, @RequestParam(value = "search", required = false) String search) {
-        List<Recipe> recipes = service.getAllRecipes();
         Pageable pageable = PageRequest.of(pageNumber, 10);
         Page<Recipe> page;
         if (search != null) {
-            List<Recipe> filtered = recipes.stream().filter(recipe -> recipe.getTitle().contains(search)).collect(Collectors.toList());
-            page = new PageImpl<>(filtered, pageable, filtered.size());
+            page = service.findByTitle(search, pageable);
         } else {
-            page = new PageImpl<>(recipes, pageable, recipes.size());
+            page = service.getAllRecipes(pageable);
         }
         int pages = page.getTotalPages();
         CollectionModel<Recipe> result;
@@ -88,11 +84,13 @@ public class RecipeController {
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(RecipeController.class).getRecipes(pageNumber, userDetails, search)).withSelfRel());
         if (pageNumber > 0) {
-            Link link2 = linkTo(methodOn(RecipeController.class).getRecipes(pageNumber - 1, userDetails, search)).withRel("previous");
+            Link link2 = linkTo(methodOn(RecipeController.class).getRecipes(pageNumber - 1, userDetails, search))
+                    .withRel("previous");
             links.add(link2);
         }
         if (pageNumber + 2 <= pages) {
-            Link link = linkTo(methodOn(RecipeController.class).getRecipes(pageNumber + 1, userDetails, search)).withRel("next");
+            Link link = linkTo(methodOn(RecipeController.class).getRecipes(pageNumber + 1, userDetails, search))
+                    .withRel("next");
             links.add(link);
         }
         if (pageNumber >= pages && pageNumber != 0) {
@@ -115,9 +113,11 @@ public class RecipeController {
         Recipe recipe = service.getOneById(id);
         SavedRecipe savedRecipe = byUsernameAndRecipeId.findByUserUsernameAndRecipeId(userDetails.getUsername(), id);
         if (savedRecipe != null) {
-            recipe.add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipeById(savedRecipe.getId(), userDetails)).withRel("Saved recipe"));
+            recipe.add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipeById(savedRecipe.getId(), userDetails))
+                    .withRel("Saved recipe"));
         } else {
-            recipe.add(linkTo(methodOn(SavedRecipeController.class).save(new SavedRecipeRequest(recipe.getId()), userDetails)).withRel("Save recipe"));
+            recipe.add(linkTo(methodOn(SavedRecipeController.class).save(new SavedRecipeRequest(recipe.getId()), userDetails))
+                    .withRel("Save recipe"));
         }
         return ResponseEntity.status(HttpStatus.OK).body(addLinks(recipe, userDetails));
     }
@@ -144,10 +144,12 @@ public class RecipeController {
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(RecipeController.class).getCurrentUsersRecipes(pageNumber, userDetails)).withSelfRel());
         if (pageNumber > 0) {
-            links.add(linkTo(methodOn(RecipeController.class).getCurrentUsersRecipes(pageNumber - 1, userDetails)).withRel("previous"));
+            links.add(linkTo(methodOn(RecipeController.class).getCurrentUsersRecipes(pageNumber - 1, userDetails))
+                    .withRel("previous"));
         }
         if (pageNumber + 2 <= pages) {
-            links.add(linkTo(methodOn(RecipeController.class).getCurrentUsersRecipes(pageNumber + 1, userDetails)).withRel("next"));
+            links.add(linkTo(methodOn(RecipeController.class).getCurrentUsersRecipes(pageNumber + 1, userDetails))
+                    .withRel("next"));
         }
         if (pageNumber >= pages && pageNumber != 0) {
             LOGGER.debug("Wanted page does not exist");
@@ -236,12 +238,12 @@ public class RecipeController {
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(RecipeController.class).getRecipesCreatedByGivenUser(pageNumber, username, userDetails)).withSelfRel());
         if (pageNumber > 0) {
-            Link link2 = linkTo(methodOn(RecipeController.class).getRecipesCreatedByGivenUser(pageNumber - 1, username, userDetails)).withRel("previous");
-            links.add(link2);
+            links.add(linkTo(methodOn(RecipeController.class).getRecipesCreatedByGivenUser
+                    (pageNumber - 1, username, userDetails)).withRel("previous"));
         }
         if (pageNumber + 2 <= pages) {
-            Link link = linkTo(methodOn(RecipeController.class).getRecipesCreatedByGivenUser(pageNumber + 1, username, userDetails)).withRel("next");
-            links.add(link);
+            links.add(linkTo(methodOn(RecipeController.class).getRecipesCreatedByGivenUser
+                    (pageNumber + 1, username, userDetails)).withRel("next"));
         }
         if (pageNumber >= pages && pageNumber != 0) {
             LOGGER.debug("Wanted page does not exist");

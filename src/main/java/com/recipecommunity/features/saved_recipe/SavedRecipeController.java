@@ -3,8 +3,8 @@ package com.recipecommunity.features.saved_recipe;
 import com.recipecommunity.features.recipe.Recipe;
 import com.recipecommunity.features.recipe.RecipeController;
 import com.recipecommunity.features.user.UserController;
-import com.recipecommunity.utils.PageDoesNotExist;
-import com.recipecommunity.utils.UserByUsername;
+import com.recipecommunity.features.utils.exception.PageDoesNotExist;
+import com.recipecommunity.features.utils.UserByUsername;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,7 @@ import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 /**
  * Controller class for savedRecipe feature. Enables client to get all currently logged in user's savedRecipes,
  * save a new SavedRecipe object, delete savedRecipe or get one by id.
@@ -45,10 +46,11 @@ public class SavedRecipeController {
         this.service = service;
         this.userByUsername = userByUsername;
     }
+
     /**
      * Returns wanted Page of savedRecipes that belong to currently logged in user and proper Links inside ResponseEntity object
      *
-     * @param pageNumber number of wanted page
+     * @param pageNumber  number of wanted page
      * @param userDetails object that contains current user data
      * @return ResponseEntity with ok status and a CollectionModel instance with Page of SavedRecipes and Links as a body
      */
@@ -58,28 +60,28 @@ public class SavedRecipeController {
                     int pageNumber, @AuthenticationPrincipal UserDetails userDetails) {
         Page<SavedRecipe> page = service.findUsersSavedRecipes(userDetails.getUsername(), PageRequest.of(pageNumber, 10));
         int pages = page.getTotalPages();
-        CollectionModel<SavedRecipe> result = null;
+        CollectionModel<SavedRecipe> result;
         for (SavedRecipe savedRecipe : page) {
             if (!savedRecipe.hasLinks()) {
-                addLinks(savedRecipe);
+                addLinks(savedRecipe, userDetails);
             }
         }
         List<Link> links = new ArrayList<>();
         links.add(linkTo(methodOn(UserController.class).getCurrentUser(userDetails)).withRel("me"));
         links.add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipes(pageNumber, userDetails)).withSelfRel());
         if (pageNumber > 0) {
-            Link link2 = linkTo(methodOn(SavedRecipeController.class).getSavedRecipes(pageNumber - 1, userDetails)).withRel("previous");
-            links.add(link2);
+            links.add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipes(pageNumber - 1, userDetails))
+                    .withRel("previous"));
         }
         if (pageNumber + 2 <= pages) {
-            Link link = linkTo(methodOn(SavedRecipeController.class).getSavedRecipes(pageNumber + 1, userDetails)).withRel("next");
-            links.add(link);
+            links.add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipes(pageNumber + 1, userDetails))
+                    .withRel("next"));
         }
-        if (pageNumber >= pages) {
+        if (pageNumber >= pages && pageNumber != 0) {
             LOGGER.debug("Wanted page does not exist");
             throw new PageDoesNotExist();
         }
-        LOGGER.debug("Getting users");
+        LOGGER.debug("Getting saved recipes");
         result = new CollectionModel<>(page, links);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
@@ -87,7 +89,7 @@ public class SavedRecipeController {
     /**
      * Saves a new SavedRecipe object with proper data using values of the arguments that are passed in.
      *
-     * @param request SavedRecipeRequest object that contains id of a recipe that will be set as savedRecipe's recipe
+     * @param request     SavedRecipeRequest object that contains id of a recipe that will be set as savedRecipe's recipe
      * @param userDetails object that contains current user data
      * @return ResponseEntity with created status and a SavedRecipe object that just has been saved
      */
@@ -97,8 +99,10 @@ public class SavedRecipeController {
         SavedRecipe savedRecipe = new SavedRecipe();
         savedRecipe.setUser(userByUsername.findUserByUsername(userDetails.getUsername()));
         savedRecipe.setRecipe(new Recipe(request.getRecipeToBeSaveId()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(savedRecipe));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(savedRecipe)
+                .add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipes(0, userDetails)).withRel("saved recipes")));
     }
+
     /**
      * Returns SavedRecipe object that represents a savedRecipe with given id inside ResponseEntity body, but only if if the
      * value of returnObject's user's username is the same as current principal's username.
@@ -109,8 +113,8 @@ public class SavedRecipeController {
      */
     @PostAuthorize("returnObject.body.user.username == authentication.principal.username")
     @GetMapping("/{id}")
-    public ResponseEntity<SavedRecipe> getSavedRecipeById(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(addLinks(service.getOneById(id)));
+    public ResponseEntity<SavedRecipe> getSavedRecipeById(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(addLinks(service.getOneById(id), userDetails));
     }
 
     /**
@@ -130,10 +134,12 @@ public class SavedRecipeController {
      * @param savedRecipe SavedRecipe object
      * @return SavedRecipe object that was passed to this method, but with added Links
      */
-    protected SavedRecipe addLinks(SavedRecipe savedRecipe) {
-        savedRecipe.add(linkTo(methodOn(RecipeController.class).getOne(savedRecipe.getRecipe().getId())).withRel("recipe"));
-        savedRecipe.add(linkTo(methodOn(UserController.class).getUserById(savedRecipe.getRecipe().getAuthor().getId())).withRel("author"));
-        savedRecipe.add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipeById(savedRecipe.getId())).withSelfRel());
+    protected SavedRecipe addLinks(SavedRecipe savedRecipe, UserDetails userDetails) {
+        savedRecipe.add(linkTo(methodOn(SavedRecipeController.class)
+                .getSavedRecipeById(savedRecipe.getId(), userDetails)).withSelfRel());
+        savedRecipe.add(linkTo(methodOn(RecipeController.class).getOne(savedRecipe.getRecipe().getId(), userDetails)).withRel("recipe"));
+        savedRecipe.add(linkTo(methodOn(UserController.class).
+                getUserById(savedRecipe.getRecipe().getAuthor().getId(), userDetails)).withRel("author"));
         LOGGER.debug("Adding links to " + savedRecipe.getId());
         return savedRecipe;
     }
