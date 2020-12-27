@@ -1,7 +1,7 @@
 package com.recipecommunity.features.comment;
 
-import com.recipecommunity.utils.ResourceNotFoundException;
-import com.recipecommunity.utils.UserByUsername;
+import com.recipecommunity.features.utils.exception.ResourceNotFoundException;
+import com.recipecommunity.features.utils.UserByUsername;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class CommentService {
      */
     @PreAuthorize("#comment.user.username == authentication.principal.username")
     protected void delete(Comment comment) {
-        LOGGER.debug("Deleting savedRecipe");
+        LOGGER.debug("Deleting comment");
         repository.delete(comment);
     }
 
@@ -45,7 +45,8 @@ public class CommentService {
         if (comment.getRecipe().getId().equals(recipeId)) {
             return comment;
         }
-        throw new ResourceNotFoundException();
+        LOGGER.warn("Resource not found");
+        throw new  ResourceNotFoundException();
     }
 
     /**

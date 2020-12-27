@@ -3,8 +3,8 @@ package com.recipecommunity.features.comment;
 import com.recipecommunity.features.recipe.Recipe;
 import com.recipecommunity.features.recipe.RecipeController;
 import com.recipecommunity.features.user.UserController;
-import com.recipecommunity.utils.PageDoesNotExist;
-import com.recipecommunity.utils.UserByUsername;
+import com.recipecommunity.features.utils.exception.PageDoesNotExist;
+import com.recipecommunity.features.utils.UserByUsername;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,37 +56,37 @@ public class CommentController {
     @GetMapping
     public ResponseEntity<CollectionModel<Comment>> getComments(
             @RequestParam(value = "page", required = false, defaultValue = "0")
-                    int pageNumber, @PathVariable Long recipeId) {
+                    int pageNumber, @PathVariable Long recipeId, @AuthenticationPrincipal UserDetails userDetails) {
         Page<Comment> page = service.findCommentsByRecipeId(recipeId, PageRequest.of(pageNumber, 10));
         int pages = page.getTotalPages();
         CollectionModel<Comment> result;
         for (Comment comment : page) {
             if (!comment.hasLinks()) {
-                addLinks(comment);
+                addLinks(comment, userDetails);
             }
         }
         List<Link> links = new ArrayList<>();
-        links.add(linkTo(methodOn(RecipeController.class).getOne(recipeId)).withRel("recipe"));
-        links.add(linkTo(methodOn(CommentController.class).getComments(pageNumber, recipeId)).withSelfRel());
+        links.add(linkTo(methodOn(RecipeController.class).getOne(recipeId, userDetails)).withRel("recipe"));
+        links.add(linkTo(methodOn(CommentController.class).getComments(pageNumber, recipeId, userDetails)).withSelfRel());
         if (pageNumber > 0) {
-            Link link2 = linkTo(methodOn(CommentController.class).getComments(pageNumber - 1, recipeId)).withRel("previous");
+            Link link2 = linkTo(methodOn(CommentController.class).getComments(pageNumber - 1, recipeId, userDetails)).withRel("previous");
             links.add(link2);
         }
         if (pageNumber + 2 <= pages) {
-            Link link = linkTo(methodOn(CommentController.class).getComments(pageNumber + 1, recipeId)).withRel("next");
+            Link link = linkTo(methodOn(CommentController.class).getComments(pageNumber + 1, recipeId, userDetails)).withRel("next");
             links.add(link);
         }
-        if (pageNumber >= pages) {
+        if (pageNumber >= pages && pageNumber != 0) {
             LOGGER.debug("Wanted page does not exist");
             throw new PageDoesNotExist();
         }
-        LOGGER.debug("Getting users");
+        LOGGER.debug("Getting comments");
         result = new CollectionModel<>(page, links);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     /**
-     * Saves a new Comment object with proper data using values of the arguments that are passed in.
+     * Saves a new Comment object with proper data using values of the arguments that are passed.
      *
      * @param commentRequest object that contains text which will be set as a comment's text
      * @param recipeId       id of a recipe that comments belong to
@@ -104,7 +104,7 @@ public class CommentController {
         comment.setDate(LocalDate.now());
         LOGGER.debug("Saving a new comment");
         return ResponseEntity.status(HttpStatus.CREATED).body(service.saveComment(comment)
-                .add(linkTo(methodOn(CommentController.class).getComments(0, recipeId)).withRel("comments")));
+                .add(linkTo(methodOn(CommentController.class).getComments(0, recipeId, userDetails)).withRel("comments")));
     }
 
     /**
@@ -116,8 +116,8 @@ public class CommentController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<Comment> getCommentById(
-            @PathVariable Long recipeId, @PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.OK).body(addLinks(service.getOneById(id, recipeId)));
+            @PathVariable Long recipeId, @PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(addLinks(service.getOneById(id, recipeId), userDetails));
     }
 
     /**
@@ -140,9 +140,10 @@ public class CommentController {
      * @param comment Comment object
      * @return Comment object that was passed to this method, but with added Links
      */
-    protected Comment addLinks(Comment comment) {
-        comment.add(linkTo(methodOn(UserController.class).getUserById(comment.getUser().getId())).withRel("author"));
-        comment.add(linkTo(methodOn(CommentController.class).getCommentById(comment.getRecipe().getId(), comment.getId())).withSelfRel());
+    protected Comment addLinks(Comment comment, UserDetails userDetails) {
+        comment.add(linkTo(methodOn(UserController.class).getUserById(comment.getUser().getId(), userDetails)).withRel("author"));
+        comment.add(linkTo(methodOn(CommentController.class).
+                getCommentById(comment.getRecipe().getId(), comment.getId(), userDetails)).withSelfRel());
         return comment;
     }
 }
