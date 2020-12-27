@@ -6,6 +6,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 /**
  * SavedRecipe Repository interface, extends Paging and Sorting Repository.
  *
@@ -15,5 +16,8 @@ import java.util.List;
 @Repository
 public interface RecipeRepository extends PagingAndSortingRepository<Recipe, Long> {
     Page<Recipe> findByAuthorUsername(String username, Pageable pageable);
+
     List<Recipe> findAll();
+
+    Page<Recipe> findAllByTitleContaining(String title, Pageable pageable);
 }
