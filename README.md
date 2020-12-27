@@ -1,7 +1,7 @@
 # RecipeCommunity - Rest API
 Restful API for a Recipe Community, created using Spring Boot.
 # About the Project 
-This project is a CRUD REST API for a Recipe Community, written in Java and built with Spring Boot.
+This project is a CRUD REST API for a Recipe Community, written in Java and built with Spring Boot.<br />
 About Recipe Community:
 - users must sign-up to join the community
 - authenticated users have access to all recipes added by other users
