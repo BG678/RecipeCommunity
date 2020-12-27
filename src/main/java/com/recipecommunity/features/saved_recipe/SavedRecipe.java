@@ -8,6 +8,13 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+
+/**
+ * POJO class that represents entity SavedRecipe.
+ *
+ * @author Barbara Grabowska
+ * @version %I%
+ */
 @Entity
 @Table(name = "saved_recipe")
 public class SavedRecipe extends RepresentationModel<SavedRecipe> implements Serializable {
