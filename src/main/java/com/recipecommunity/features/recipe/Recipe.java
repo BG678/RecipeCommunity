@@ -9,8 +9,8 @@ import org.springframework.hateoas.RepresentationModel;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * POJO class that represents entity Recipe
@@ -35,11 +35,11 @@ public class Recipe extends RepresentationModel<Recipe> implements Serializable 
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
     @JsonIgnore
-    @OneToMany(mappedBy = "recipe")
-    private Set<Comment> comments;
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
     @JsonIgnore
-    @OneToMany(mappedBy = "recipe")
-    private Set<SavedRecipe> savedRecipes;
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SavedRecipe> savedRecipes;
 
     public Recipe() {
     }
@@ -80,19 +80,19 @@ public class Recipe extends RepresentationModel<Recipe> implements Serializable 
         this.author = author;
     }
 
-    public Set<SavedRecipe> getSavedRecipes() {
+    public List<SavedRecipe> getSavedRecipes() {
         return savedRecipes;
     }
 
-    public void setSavedRecipes(Set<SavedRecipe> savedRecipes) {
+    public void setSavedRecipes(List<SavedRecipe> savedRecipes) {
         this.savedRecipes = savedRecipes;
     }
 
-    public Set<Comment> getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(Set<Comment> comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 
