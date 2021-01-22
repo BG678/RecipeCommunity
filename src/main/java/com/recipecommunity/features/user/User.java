@@ -10,8 +10,8 @@ import org.springframework.hateoas.RepresentationModel;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * POJO class that represents entity User
@@ -32,14 +32,14 @@ public class User extends RepresentationModel<User> implements Serializable {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @JsonIgnore
-    @OneToMany(mappedBy = "author")
-    private Set<Recipe> createdRecipes;
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Recipe> createdRecipes;
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
-    private Set<Comment> comments;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
-    private Set<SavedRecipe> savedRecipes;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SavedRecipe> savedRecipes;
 
     public User() {
 
@@ -73,27 +73,27 @@ public class User extends RepresentationModel<User> implements Serializable {
         this.password = password;
     }
 
-    public Set<Recipe> getCreatedRecipes() {
+    public List<Recipe> getCreatedRecipes() {
         return createdRecipes;
     }
 
-    public void setCreatedRecipes(Set<Recipe> createdRecipes) {
+    public void setCreatedRecipes(List<Recipe> createdRecipes) {
         this.createdRecipes = createdRecipes;
     }
 
-    public Set<Comment> getComments() {
+    public List<Comment> getComments() {
         return comments;
     }
 
-    public void setComments(Set<Comment> comments) {
+    public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
 
-    public Set<SavedRecipe> getSavedRecipes() {
+    public List<SavedRecipe> getSavedRecipes() {
         return savedRecipes;
     }
 
-    public void setSavedRecipes(Set<SavedRecipe> savedRecipes) {
+    public void setSavedRecipes(List<SavedRecipe> savedRecipes) {
         this.savedRecipes = savedRecipes;
     }
 
