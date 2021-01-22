@@ -1,12 +1,11 @@
 package com.recipecommunity.features.user;
 
-import com.recipecommunity.utils.ResourceNotFoundException;
+import com.recipecommunity.features.utils.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Optional;
 
