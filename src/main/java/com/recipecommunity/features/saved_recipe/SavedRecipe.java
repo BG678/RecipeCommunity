@@ -10,7 +10,7 @@ import java.util.Objects;
 
 
 /**
- * POJO class that represents entity SavedRecipe.
+ * POJO class that represents entity SavedRecipe - a recipe that has been saved by logged in user.
  *
  * @author Barbara Grabowska
  * @version %I%

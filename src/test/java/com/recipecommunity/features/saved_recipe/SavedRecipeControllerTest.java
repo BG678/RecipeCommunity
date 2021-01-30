@@ -98,7 +98,7 @@ class SavedRecipeControllerTest {
     @WithMockUser(username = "test")
     protected void test_save() throws Exception {
         SavedRecipeRequest savedRecipeRequest = new SavedRecipeRequest();
-        savedRecipeRequest.setRecipeToBeSaveId(1L);
+        savedRecipeRequest.setRecipeToBeSavedId(1L);
         SavedRecipe toBeSaved = new SavedRecipe();
          toBeSaved.setUser(user);
         toBeSaved.setRecipe(new Recipe(1L));

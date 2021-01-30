@@ -14,20 +14,20 @@ public class SavedRecipeRequest implements Serializable {
     private static final long serialVersionUID = 12345434344L;
     @NotNull
     @Positive
-    private Long recipeToBeSaveId;
+    private Long recipeToBeSavedId;
 
     public SavedRecipeRequest() {
     }
 
-    public SavedRecipeRequest(@NotBlank @Positive Long recipeToBeSaveId) {
-        this.recipeToBeSaveId = recipeToBeSaveId;
+    public SavedRecipeRequest(@NotBlank @Positive Long recipeToBeSavedId) {
+        this.recipeToBeSavedId = recipeToBeSavedId;
     }
 
-    public Long getRecipeToBeSaveId() {
-        return recipeToBeSaveId;
+    public Long getRecipeToBeSavedId() {
+        return recipeToBeSavedId;
     }
 
-    public void setRecipeToBeSaveId(Long recipeToBeSaveId) {
-        this.recipeToBeSaveId = recipeToBeSaveId;
+    public void setRecipeToBeSavedId(Long recipeToBeSavedId) {
+        this.recipeToBeSavedId = recipeToBeSavedId;
     }
 }

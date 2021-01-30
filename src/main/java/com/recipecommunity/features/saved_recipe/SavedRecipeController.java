@@ -98,7 +98,7 @@ public class SavedRecipeController {
             @Valid @RequestBody SavedRecipeRequest request, @AuthenticationPrincipal UserDetails userDetails) {
         SavedRecipe savedRecipe = new SavedRecipe();
         savedRecipe.setUser(userByUsername.findUserByUsername(userDetails.getUsername()));
-        savedRecipe.setRecipe(new Recipe(request.getRecipeToBeSaveId()));
+        savedRecipe.setRecipe(new Recipe(request.getRecipeToBeSavedId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(savedRecipe)
                 .add(linkTo(methodOn(SavedRecipeController.class).getSavedRecipes(0, userDetails)).withRel("saved recipes")));
     }
